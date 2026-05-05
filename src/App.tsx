@@ -158,16 +158,18 @@ const ParticleBackground = () => {
     const color1 = new THREE.Color(0x00F3FF); // Cyan
     const color2 = new THREE.Color(0x1A1A1A); // Dark
 
-    for (let i = 0; i < count * 3; i++) {
-       const x = (Math.random() - 0.5) * 30;
-       const y = (Math.random() - 0.5) * 30;
-       const z = (Math.random() - 0.5) * 30;
-       positions[i] = x;
-       
-       const mixedColor = color1.clone().lerp(color2, Math.random() * 0.8);
-       colors[i] = mixedColor.r;
-       colors[i + 1] = mixedColor.g;
-       colors[i + 2] = mixedColor.b;
+    for (let i = 0; i < count * 3; i += 3) {
+      const x = (Math.random() - 0.5) * 30;
+      const y = (Math.random() - 0.5) * 30;
+      const z = (Math.random() - 0.5) * 30;
+      positions[i] = x;
+      positions[i + 1] = y;
+      positions[i + 2] = z;
+
+      const mixedColor = color1.clone().lerp(color2, Math.random() * 0.8);
+      colors[i] = mixedColor.r;
+      colors[i + 1] = mixedColor.g;
+      colors[i + 2] = mixedColor.b;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -196,8 +198,10 @@ const ParticleBackground = () => {
 
     window.addEventListener('mousemove', handleMouseMove);
 
+    let animationFrameId = 0;
+
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
       particlesMesh.rotation.y += 0.0002;
       particlesMesh.rotation.z += 0.0001;
       
@@ -231,7 +235,12 @@ const ParticleBackground = () => {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+      particlesGeometry.dispose();
+      particlesMaterial.dispose();
+      scene.remove(particlesMesh);
       renderer.dispose();
+      renderer.domElement.remove();
     };
   }, []);
 
